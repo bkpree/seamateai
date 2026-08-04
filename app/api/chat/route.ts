@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { getFlightInfo } from "@/lib/aviationstack";
 import { getAirportServices } from "@/lib/airport-services";
+import { getTransportInfo } from "@/lib/transport";
 
 const client = new OpenAI({
   apiKey: process.env.SEA_LION_API_KEY,
@@ -56,6 +57,24 @@ const tools = [
       },
     },
   },
+  {
+    type: "function" as const,
+    function: {
+      name: "get_transport_info",
+      description:
+        "Use this tool when the passenger asks how to travel to or from Changi Airport. This includes questions about MRT, trains, buses, taxis, private hire cars, Grab, or other ride-hailing services.",
+      parameters: {
+        type: "object",
+        properties: {
+          mode: {
+            type: "string",
+            description:
+              "Transportation type if specified by the passenger. Use mrt for MRT/train questions, bus for bus questions, taxi for taxi questions, or ride-hailing for Grab/private hire questions. Leave empty if the passenger asks generally about transport.",
+          },
+        },
+      },
+    },
+  },
 ];
 
 export async function POST(request: Request) {
@@ -78,6 +97,7 @@ You are a passenger support assistant for Singapore Changi Airport.
 You currently help passengers with:
 - Flight information
 - Airport food and dining information
+- Airport transportation information
 
 IMPORTANT:
 - Never invent or guess flight information.
@@ -110,6 +130,11 @@ RESPONSE FORMAT:
 - For each option, include only the name, cuisine, location, and opening hours.
 - If there are more than 5 matches, mention that more options may be available.
 - If the user asks for a specific terminal or area, prioritise options matching that request.
+- If the user asks how to get to, leave, travel to, or travel from Changi Airport, ALWAYS use the get_transport_info tool.
+- If the user mentions MRT, train, bus, taxi, Grab, private hire, or ride-hailing, ALWAYS use the get_transport_info tool.
+- If the user asks generally about transportation without specifying a mode, use get_transport_info with no mode.- Do not invent transport information.
+- Only state transport information returned by the tool.
+- Do not provide live travel times, traffic conditions, fares, or route calculations.
         `,
       },
       {
@@ -167,6 +192,22 @@ RESPONSE FORMAT:
           }
         }
 
+        if (toolCall.function.name === "get_transport_info") {
+          console.log("TRANSPORT TOOL CALLED", args);
+          const transports = getTransportInfo(args.mode);
+
+          if (transports.length === 0) {
+            result = { error: "No matching transport information found." };
+          } else {
+            result = transports.map((transport) => ({
+              mode: transport.mode,
+              name: transport.name,
+              location: transport.location,
+              description: transport.description,
+            }));
+          }
+        }
+
         messages.push({
           role: "tool",
           tool_call_id: toolCall.id,
@@ -174,6 +215,7 @@ RESPONSE FORMAT:
         });
       }
 
+      console.log("CALLING FINAL SEA-LION RESPONSE");
       const finalResponse = await client.chat.completions.create({
         model: "aisingapore/Qwen-SEA-LION-v4.5-27B-IT",
         messages,
