@@ -106,6 +106,10 @@ RESPONSE FORMAT:
 - Do not use bold, italics, or other Markdown formatting.
 - Use emojis sparingly when useful.
 - Put each important piece of information on its own line.
+- For airport dining questions, list at most 5 relevant options.
+- For each option, include only the name, cuisine, location, and opening hours.
+- If there are more than 5 matches, mention that more options may be available.
+- If the user asks for a specific terminal or area, prioritise options matching that request.
         `,
       },
       {
@@ -142,14 +146,24 @@ RESPONSE FORMAT:
         }
 
         if (toolCall.function.name === "get_airport_services") {
-          result = getAirportServices({
+          const services = getAirportServices({
             category: args.category,
             terminal: args.terminal,
             area: args.area,
           });
 
-          if (result.length === 0) {
+          if (services.length === 0) {
             result = { error: "No matching airport services found." };
+          } else {
+            result = {
+              options: services.slice(0, 5).map((service) => ({
+                name: service.name,
+                cuisine: service.cuisine,
+                location: `${service.area}, Level ${service.level}`,
+                openingHours: service.openingHours,
+              })),
+              hasMore: services.length > 5,
+            };
           }
         }
 
@@ -195,11 +209,11 @@ RESPONSE FORMAT:
     }
 
     return new Response(msg.content || "", {
-  headers: {
-    "Content-Type": "text/plain; charset=utf-8",
-    "Cache-Control": "no-cache",
-  },
-});
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache",
+      },
+    });
   } catch (error) {
     console.error("Chat API error:", error);
 
