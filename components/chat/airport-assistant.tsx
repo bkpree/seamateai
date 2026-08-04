@@ -36,28 +36,60 @@ export default function AirportAssistant() {
 
   try {
     const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: userMessage,
-      }),
-    });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    message: userMessage,
+  }),
+});
 
-    const data = await response.json();
+if (!response.ok) {
+  const data = await response.json().catch(() => null);
 
-    if (!response.ok) {
-      throw new Error(data.error || "Something went wrong");
-    }
+  throw new Error(
+    data?.error || "Something went wrong"
+  );
+}
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: "assistant",
-        content: data.reply,
-      },
-    ]);
+if (!response.body) {
+  throw new Error("No response body");
+}
+
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+
+let assistantMessage = "";
+
+setMessages((prev) => [
+  ...prev,
+  {
+    role: "assistant",
+    content: "",
+  },
+]);
+
+while (true) {
+  const { done, value } = await reader.read();
+
+  if (done) break;
+
+  const chunk = decoder.decode(value, { stream: true });
+
+  assistantMessage += chunk;
+
+  setMessages((prev) => {
+    const updated = [...prev];
+
+    updated[updated.length - 1] = {
+      role: "assistant",
+      content: assistantMessage,
+    };
+
+    return updated;
+  });
+}
   } catch (error) {
     console.error("Chat error:", error);
 

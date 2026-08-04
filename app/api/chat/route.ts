@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { getFlightInfo } from "@/lib/aviationstack";
+import { getAirportServices } from "@/lib/airport-services";
 
 const client = new OpenAI({
   apiKey: process.env.SEA_LION_API_KEY,
@@ -27,6 +28,34 @@ const tools = [
       },
     },
   },
+  {
+    type: "function" as const,
+    function: {
+      name: "get_airport_services",
+      description:
+        "Find airport services and facilities at Singapore Changi Airport, such as food and dining options.",
+      parameters: {
+        type: "object",
+        properties: {
+          category: {
+            type: "string",
+            description:
+              "The type of service the passenger is looking for, such as food.",
+          },
+          terminal: {
+            type: "string",
+            description:
+              "The airport terminal, such as T1, T2, T3, or T4.",
+          },
+          area: {
+            type: "string",
+            description:
+              "Whether the passenger is in the public area or transit area.",
+          },
+        },
+      },
+    },
+  },
 ];
 
 export async function POST(request: Request) {
@@ -46,7 +75,9 @@ export async function POST(request: Request) {
         content: `
 You are a passenger support assistant for Singapore Changi Airport.
 
-You can currently help passengers with flight information.
+You currently help passengers with:
+- Flight information
+- Airport food and dining information
 
 IMPORTANT:
 - Never invent or guess flight information.
@@ -62,6 +93,10 @@ IMPORTANT:
 - If information is unavailable, say "Not available".
 - For simple greetings such as "hello" or "hi", respond briefly and ask how you can help.
 - Do not explain your capabilities unless the passenger asks.
+- If the user asks about airport food or dining, use the get_airport_services tool.
+- Do not invent airport service information.
+- Only state airport service information returned by the tool.
+- If the user does not specify a terminal or area, do not assume one.
 
 RESPONSE FORMAT:
 - Keep responses concise.
@@ -96,30 +131,75 @@ RESPONSE FORMAT:
 
         const args = JSON.parse(toolCall.function.arguments);
 
-        const result = await getFlightInfo(args.flightNumber);
+        let result;
+
+        if (toolCall.function.name === "get_flight_info") {
+          result = await getFlightInfo(args.flightNumber);
+
+          if (!result) {
+            result = { error: "Flight not found." };
+          }
+        }
+
+        if (toolCall.function.name === "get_airport_services") {
+          result = getAirportServices({
+            category: args.category,
+            terminal: args.terminal,
+            area: args.area,
+          });
+
+          if (result.length === 0) {
+            result = { error: "No matching airport services found." };
+          }
+        }
 
         messages.push({
           role: "tool",
           tool_call_id: toolCall.id,
-          content: JSON.stringify(
-            result ?? { error: "Flight not found." }
-          ),
+          content: JSON.stringify(result),
         });
       }
 
       const finalResponse = await client.chat.completions.create({
         model: "aisingapore/Qwen-SEA-LION-v4.5-27B-IT",
         messages,
+        stream: true,
       });
 
-      return NextResponse.json({
-        reply: finalResponse.choices[0].message.content,
+      const encoder = new TextEncoder();
+
+      const stream = new ReadableStream({
+        async start(controller) {
+          try {
+            for await (const chunk of finalResponse) {
+              const content = chunk.choices[0]?.delta?.content;
+
+              if (content) {
+                controller.enqueue(encoder.encode(content));
+              }
+            }
+
+            controller.close();
+          } catch (error) {
+            controller.error(error);
+          }
+        },
+      });
+
+      return new Response(stream, {
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "no-cache",
+        },
       });
     }
 
-    return NextResponse.json({
-      reply: msg.content,
-    });
+    return new Response(msg.content || "", {
+  headers: {
+    "Content-Type": "text/plain; charset=utf-8",
+    "Cache-Control": "no-cache",
+  },
+});
   } catch (error) {
     console.error("Chat API error:", error);
 
