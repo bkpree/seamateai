@@ -6,25 +6,54 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 
+function formatSingaporeTime(
+  actual: string | null,
+  estimated: string | null, 
+  scheduled: string | null
+) {
+  const time = actual ?? estimated ?? scheduled;
+
+  if (!time) return "Not available";
+
+  return new Intl.DateTimeFormat("en-SG", {
+    timeZone: "Asia/Singapore",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date(time));
+}
+
 interface FlightResult {
   flightNumber: string;
   airline: string;
-  route: string;
-  departureTime: string;
-  gate: string;
-  terminal: string;
   status: string;
+  departure: {
+    airport: string;
+    iata: string;
+    terminal: string | null;
+    gate: string | null;
+    scheduled: string | null;
+    estimated: string | null;
+    actual: string | null;
+  };
+  arrival: {
+    airport: string;
+    iata: string;
+    terminal: string | null;
+    gate: string | null;
+    baggage: string | null;
+    scheduled: string | null;
+    estimated: string | null;
+    actual: string | null;
+  };
+  codeshare: {
+    airline: string;
+    flightNumber: string;
+  } | null;
+
 }
 
-const mockFlight: FlightResult = {
-  flightNumber: "SQ322",
-  airline: "Singapore Airlines",
-  route: "SIN → LHR",
-  departureTime: "18:45",
-  gate: "B12",
-  terminal: "3",
-  status: "Boarding",
-};
+
 
 export default function FlightSearch() {
   const [flightNumber, setFlightNumber] = useState("");
@@ -32,31 +61,44 @@ export default function FlightSearch() {
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSearch = async (
+  event: React.FormEvent<HTMLFormElement>
+) => {
+  event.preventDefault();
 
-    const cleanedFlightNumber = flightNumber.trim().toUpperCase();
+  const cleanedFlightNumber = flightNumber.trim().toUpperCase();
 
-    if (!cleanedFlightNumber) {
+  if (!cleanedFlightNumber) {
+    return;
+  }
+
+  setSearched(false);
+  setFlight(null);
+  setLoading(true);
+
+  try {
+    const response = await fetch(
+      `/api/flights?flight=${encodeURIComponent(cleanedFlightNumber)}`
+    );
+
+    if (!response.ok) {
+      setSearched(true);
+      setFlight(null);
       return;
     }
 
+    const data = await response.json();
+
+    setFlight(data);
+    setSearched(true);
+  } catch (error) {
+    console.error("Flight search error:", error);
     setSearched(true);
     setFlight(null);
-    setLoading(true);
-
-
-
-    // Temporary mock search.
-    // We'll replace this with the FlightLabs API later.
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    if (cleanedFlightNumber === "SQ322") {
-      setFlight(mockFlight);
-    }
-    setSearched(true);
+  } finally {
     setLoading(false);
-  };
+  }
+};
 
   return (
     <div className="space-y-6">
@@ -93,20 +135,6 @@ export default function FlightSearch() {
         </CardContent>
       </Card>
 
-      {/* Empty state
-      {!searched && (
-        <div className="py-12 text-center">
-          <Plane className="mx-auto mb-4 text-gray-400" size={40} />
-
-          <h2 className="text-lg font-semibold">
-            Search for your flight
-          </h2>
-
-          <p className="mt-2 text-sm text-gray-500">
-            Enter your flight number to view the latest information.
-          </p>
-        </div>
-      )} */}
 
       {/* Loading state */}
 {loading && (
@@ -175,38 +203,81 @@ export default function FlightSearch() {
               </span>
             </div>
 
-            <div className="mt-8 grid gap-6 sm:grid-cols-3">
-              <div className="flex gap-3">
-                <MapPin className="text-blue-600" size={20} />
+            <div className="mt-8 grid gap-6 sm:grid-cols-2">
+        <div>
+          <p className="text-xs text-gray-500">
+            From
+          </p>
 
-                <div>
-                  <p className="text-xs text-gray-500">Route</p>
-                  <p className="font-medium">{flight.route}</p>
-                </div>
-              </div>
+          <p className="font-medium">
+            {flight.departure.iata}
+          </p>
 
-              <div className="flex gap-3">
-                <Clock3 className="text-blue-600" size={20} />
+          <p className="text-sm text-gray-500">
+            {flight.departure.airport}
+          </p>
+        </div>
 
-                <div>
-                  <p className="text-xs text-gray-500">Departure</p>
-                  <p className="font-medium">{flight.departureTime}</p>
-                </div>
-              </div>
+        <div>
+          <p className="text-xs text-gray-500">
+            To
+          </p>
 
-              <div className="flex gap-3">
-                <Plane className="text-blue-600" size={20} />
+          <p className="font-medium">
+            {flight.arrival.iata}
+          </p>
 
-                <div>
-                  <p className="text-xs text-gray-500">Gate</p>
-                  <p className="font-medium">
-                    Terminal {flight.terminal}, Gate {flight.gate}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          <p className="text-sm text-gray-500">
+            {flight.arrival.airport}
+          </p>
+        </div>
+      </div>
+
+         <div>
+    <p className="text-xs text-gray-500">
+      Arrival
+    </p>
+
+
+    <p className="font-medium">
+      {formatSingaporeTime(flight.arrival.actual,flight.arrival.estimated, flight.arrival.scheduled
+)}
+    </p>
+  </div>
+        
+      <div className="mt-8 grid gap-6 sm:grid-cols-3">
+        <div>
+          <p className="text-xs text-gray-500">
+            Terminal
+          </p>
+
+          <p className="font-medium">
+            {flight.arrival.terminal ?? "Not available"}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-xs text-gray-500">
+            Gate
+          </p>
+
+          <p className="font-medium">
+            {flight.arrival.gate ?? "Not available"}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-xs text-gray-500">
+            Baggage
+          </p>
+
+          <p className="font-medium">
+            {flight.arrival.baggage ?? "Not available"}
+          </p>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
       )}
     </div>
   );
