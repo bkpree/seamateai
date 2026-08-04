@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, Plane } from "lucide-react";
+import FlightSearch from "@/components/flight/flight-search";
 
 export default function FlightPage() {
   return (
@@ -27,12 +28,9 @@ export default function FlightPage() {
           </p>
         </div>
 
-        {/* We'll build the search here next */}
-        <div className="rounded-2xl border bg-white p-8 shadow-sm">
-          <p className="text-gray-500">
-            Flight search coming next...
-          </p>
-        </div>
+        <FlightSearch />
+
+        
       </div>
     </main>
   );
