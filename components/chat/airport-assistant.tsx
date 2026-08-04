@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 type Message = {
   role: "user" | "assistant";
@@ -19,92 +20,92 @@ export default function AirportAssistant() {
   ]);
 
   const handleSend = async () => {
-  if (!message.trim()) return;
+    if (!message.trim()) return;
 
-  const userMessage = message.trim();
-
-  setMessages((prev) => [
-    ...prev,
-    {
-      role: "user",
-      content: userMessage,
-    },
-  ]);
-
-  setMessage("");
-  setIsLoading(true);
-
-  try {
-    const response = await fetch("/api/chat", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    message: userMessage,
-  }),
-});
-
-if (!response.ok) {
-  const data = await response.json().catch(() => null);
-
-  throw new Error(
-    data?.error || "Something went wrong"
-  );
-}
-
-if (!response.body) {
-  throw new Error("No response body");
-}
-
-const reader = response.body.getReader();
-const decoder = new TextDecoder();
-
-let assistantMessage = "";
-
-setMessages((prev) => [
-  ...prev,
-  {
-    role: "assistant",
-    content: "",
-  },
-]);
-
-while (true) {
-  const { done, value } = await reader.read();
-
-  if (done) break;
-
-  const chunk = decoder.decode(value, { stream: true });
-
-  assistantMessage += chunk;
-
-  setMessages((prev) => {
-    const updated = [...prev];
-
-    updated[updated.length - 1] = {
-      role: "assistant",
-      content: assistantMessage,
-    };
-
-    return updated;
-  });
-}
-  } catch (error) {
-    console.error("Chat error:", error);
+    const userMessage = message.trim();
 
     setMessages((prev) => [
       ...prev,
       {
-        role: "assistant",
-        content:
-          "Sorry, I couldn't process your request right now.",
+        role: "user",
+        content: userMessage,
       },
     ]);
-  } finally {
-    setIsLoading(false);
-  }
-};
+
+    setMessage("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userMessage,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+
+        throw new Error(
+          data?.error || "Something went wrong"
+        );
+      }
+
+      if (!response.body) {
+        throw new Error("No response body");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      let assistantMessage = "";
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "",
+        },
+      ]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+
+        assistantMessage += chunk;
+
+        setMessages((prev) => {
+          const updated = [...prev];
+
+          updated[updated.length - 1] = {
+            role: "assistant",
+            content: assistantMessage,
+          };
+
+          return updated;
+        });
+      }
+    } catch (error) {
+      console.error("Chat error:", error);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "Sorry, I couldn't process your request right now.",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
@@ -143,59 +144,79 @@ while (true) {
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`flex ${
-                  msg.role === "user"
+                className={`flex ${msg.role === "user"
                     ? "justify-end"
                     : "justify-start"
-                }`}
+                  }`}
               >
                 <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${
-                    msg.role === "user"
+                  className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6 ${msg.role === "user"
                       ? "bg-black text-white"
                       : "bg-gray-100 text-gray-900"
-                  }`}
+                    }`}
                 >
-                  {msg.content}
+                  <ReactMarkdown
+                    components={{
+                      p: ({ children }) => (
+                        <p className="mb-2 last:mb-0">{children}</p>
+                      ),
+                      ul: ({ children }) => (
+                        <ul className="mb-2 list-disc space-y-1 pl-5">
+                          {children}
+                        </ul>
+                      ),
+                      ol: ({ children }) => (
+                        <ol className="mb-2 list-decimal space-y-1 pl-5">
+                          {children}
+                        </ol>
+                      ),
+                      li: ({ children }) => <li>{children}</li>,
+                    }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
                 </div>
               </div>
             ))}
 
-{messages.length === 1 && !isLoading && (
-  <div className="mt-3 flex flex-wrap gap-2">
-    <button
-      onClick={() => setMessage("Where is my flight?")}
-      className="rounded-full border px-3 py-2 text-sm hover:bg-gray-50"
-    >
-      ✈️ Check a flight
-    </button>
+            {messages.length === 1 && !isLoading && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  onClick={() => setMessage("Where is my flight?")}
+                  className="rounded-full border px-3 py-2 text-sm hover:bg-gray-50"
+                >
+                  ✈️ Check a flight
+                </button>
 
-    <button
-      onClick={() =>
-        setMessage("What services are available at Changi Airport?")
-      }
-      className="rounded-full border px-3 py-2 text-sm hover:bg-gray-50"
-    >
-      🏢 Airport services
-    </button>
+                <button
+                  onClick={() =>
+                    setMessage("Where can I eat at Changi Airport?")
+                  }
+                  className="rounded-full border px-3 py-2 text-sm hover:bg-gray-50"
+                >
+                  🍜 Find food
+                </button>
 
-    <button
-      onClick={() =>
-        setMessage("How do I get to the city from Changi Airport?")
-      }
-      className="rounded-full border px-3 py-2 text-sm hover:bg-gray-50"
-    >
-      🚇 Transport
-    </button>
-  </div>
-)}
+                <button
+                  onClick={() =>
+                    setMessage("How do I get to the city from Changi Airport?")
+                  }
+                  className="rounded-full border px-3 py-2 text-sm hover:bg-gray-50"
+                >
+                  🚇 Transport
+                </button>
+              </div>
+            )}
             {isLoading && (
-  <div className="flex justify-start">
-    <div className="rounded-2xl bg-gray-100 px-4 py-2 text-sm text-gray-500">
-      Thinking...
-    </div>
-  </div>
-)}
+              <div className="flex items-center gap-2 px-4 py-3 text-sm text-gray-500">
+                <div className="flex gap-1">
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.3s]" />
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.15s]" />
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400" />
+                </div>
+                <span>Thinking...</span>
+              </div>
+            )}
           </div>
 
           {/* Input */}
@@ -219,7 +240,7 @@ while (true) {
                 disabled={isLoading}
                 className="rounded-lg bg-black px-4 py-2 text-white"
               >
-                {isLoading?"..." : "→"}
+                {isLoading ? "..." : "→"}
               </button>
             </div>
           </div>

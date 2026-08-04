@@ -1,9 +1,7 @@
 "use client";
 
 import {
-  Plane,
-  Building2,
-  TrainFront,
+  Plane
 } from "lucide-react";
 
 import FeatureCard from "./feature-card";
@@ -20,21 +18,6 @@ export default function FeatureGrid() {
                 title="Flight Status"
                 description="Check live flight status, terminal and departure gate."
             />
-      
-
-      <FeatureCard
-        href="/services"
-        icon={<Building2 size={34} />}
-        title="Airport Services"
-        description="Find restaurants, lounges, attractions and facilities."
-      />
-
-      <FeatureCard
-        href="/transport"
-        icon={<TrainFront size={34} />}
-        title="Transportation"
-        description="Explore MRT, taxi, buses and ride-hailing options."
-      />
 
     </section>
   );
