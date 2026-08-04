@@ -17,25 +17,58 @@ export default function AirportAssistant() {
     },
   ]);
 
-  const handleSend = () => {
-    if (!message.trim()) return;
+  const handleSend = async () => {
+  if (!message.trim()) return;
 
-    const userMessage = message.trim();
+  const userMessage = message.trim();
+
+  setMessages((prev) => [
+    ...prev,
+    {
+      role: "user",
+      content: userMessage,
+    },
+  ]);
+
+  setMessage("");
+
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: userMessage,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Something went wrong");
+    }
 
     setMessages((prev) => [
       ...prev,
       {
-        role: "user",
-        content: userMessage,
-      },
-      {
         role: "assistant",
-        content: "I'm still learning! I'll be able to help with airport questions soon.",
+        content: data.reply,
       },
     ]);
+  } catch (error) {
+    console.error("Chat error:", error);
 
-    setMessage("");
-  };
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        content:
+          "Sorry, I couldn't process your request right now.",
+      },
+    ]);
+  }
+};
 
   return (
     <>
