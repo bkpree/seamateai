@@ -1,7 +1,7 @@
 import Navbar from "@/components/navbar";
 import Hero from "@/components/hero";
 import FeatureGrid from "@/components/feature-grid";
-import AICard from "@/components/ai-card";
+import AirportAssistant from "@/components/chat/airport-assistant";
 
 export default function Home() {
   return (
@@ -12,7 +12,7 @@ export default function Home() {
 
       <FeatureGrid />
 
-      <AICard />
+      <AirportAssistant />
     </main>
   );
 }
