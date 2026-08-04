@@ -10,6 +10,7 @@ type Message = {
 export default function AirportAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -31,6 +32,7 @@ export default function AirportAssistant() {
   ]);
 
   setMessage("");
+  setIsLoading(true);
 
   try {
     const response = await fetch("/api/chat", {
@@ -67,6 +69,8 @@ export default function AirportAssistant() {
           "Sorry, I couldn't process your request right now.",
       },
     ]);
+  } finally {
+    setIsLoading(false);
   }
 };
 
@@ -124,6 +128,42 @@ export default function AirportAssistant() {
                 </div>
               </div>
             ))}
+
+{messages.length === 1 && !isLoading && (
+  <div className="mt-3 flex flex-wrap gap-2">
+    <button
+      onClick={() => setMessage("Where is my flight?")}
+      className="rounded-full border px-3 py-2 text-sm hover:bg-gray-50"
+    >
+      ✈️ Check a flight
+    </button>
+
+    <button
+      onClick={() =>
+        setMessage("What services are available at Changi Airport?")
+      }
+      className="rounded-full border px-3 py-2 text-sm hover:bg-gray-50"
+    >
+      🏢 Airport services
+    </button>
+
+    <button
+      onClick={() =>
+        setMessage("How do I get to the city from Changi Airport?")
+      }
+      className="rounded-full border px-3 py-2 text-sm hover:bg-gray-50"
+    >
+      🚇 Transport
+    </button>
+  </div>
+)}
+            {isLoading && (
+  <div className="flex justify-start">
+    <div className="rounded-2xl bg-gray-100 px-4 py-2 text-sm text-gray-500">
+      Thinking...
+    </div>
+  </div>
+)}
           </div>
 
           {/* Input */}
@@ -137,15 +177,17 @@ export default function AirportAssistant() {
                     handleSend();
                   }
                 }}
+                disabled={isLoading}
                 placeholder="Ask about Changi..."
                 className="min-w-0 flex-1 rounded-lg border px-3 py-2 text-sm outline-none"
               />
 
               <button
                 onClick={handleSend}
+                disabled={isLoading}
                 className="rounded-lg bg-black px-4 py-2 text-white"
               >
-                →
+                {isLoading?"..." : "→"}
               </button>
             </div>
           </div>
