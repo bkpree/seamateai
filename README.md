@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SeaMate AI
 
-## Getting Started
+SeaMate AI is a multilingual AI airport concierge designed to help passengers navigate Singapore Changi Airport. It provides flight information, airport dining recommendations, and transportation information through a conversational interface.
 
-First, run the development server:
+## Setup Instructions
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/bkpree/seamateai
+cd seamateai
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure environment variables
+
+Create a `.env.local` file in the project root:
+
+```env
+SEA_LION_API_KEY=your_sea_lion_api_key
+AVIATIONSTACK_API_KEY=your_aviationstack_api_key
+```
+
+### 4. Start the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000` in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Technical Approach
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+SeaMate AI uses a Next.js application with a conversational AI interface.
 
-## Learn More
+When a user sends a message, the request is sent to a Next.js API route. SEA-LION determines whether external information is required and can invoke one of three tools:
 
-To learn more about Next.js, take a look at the following resources:
+* `get_flight_info` — retrieves flight information such as status, terminal, gate, baggage belt, and arrival/departure times.
+* `get_airport_services` — retrieves relevant airport services such as dining options based on terminal and area.
+* `get_transport_info` — retrieves transportation information including MRT, buses, taxis, and ride-hailing.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The retrieved tool results are then passed back to SEA-LION, which generates a concise, passenger-friendly response.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+This tool-calling approach helps prevent the AI from inventing real-time airport information by separating information retrieval from response generation.
 
-## Deploy on Vercel
+## AI Model / Framework
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### SEA-LION
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+SeaMate AI uses **SEA-LION (Southeast Asian Languages in One Network)** as its conversational AI model.
+
+SEA-LION is used to:
+
+* Understand passenger queries
+* Determine when an external tool is required
+* Process tool results
+* Generate natural-language responses
+* Support multilingual interactions across Southeast Asian languages
+
+The model is accessed through an OpenAI-compatible API using the OpenAI JavaScript SDK.
+
+### Technology Stack
+
+* Next.js
+* React
+* TypeScript
+* Tailwind CSS
+* SEA-LION
+* AviationStack API
+* Lucide React
+* OpenAI JavaScript SDK
