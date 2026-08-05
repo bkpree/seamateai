@@ -1,6 +1,8 @@
 # SeaMate AI
 
-SeaMate AI is a multilingual AI airport concierge designed to help passengers navigate Singapore Changi Airport. It provides flight information, airport dining recommendations, and transportation information through a conversational interface.
+SeaMate AI is a multilingual AI airport concierge designed to help passengers navigate Singapore Changi Airport. It provides flight information, airport dining recommendations, transportation information, and conversational assistance through a single chat interface.
+
+**Live Demo:** https://seamateai.vercel.app/
 
 ## Setup Instructions
 
@@ -116,22 +118,22 @@ Passengers can ask about transportation options for travelling to and from Chang
 
 Example queries:
 
-What is the status of SQ8663?
+*    What is the status of SQ8663?
 
-What food is available at Terminal 1?
+*    What food is available at Terminal 1?
 
-How do I get to the city from Changi Airport?
+*    How do I get to the city from Changi Airport?
 
-Apa makanan yang tersedia di Terminal 1?
+*    Apa makanan yang tersedia di Terminal 1?
 
-อาหารอะไรมีให้บริการที่อาคารผู้โดยสาร 1?
+*    อาหารอะไรมีให้บริการที่อาคารผู้โดยสาร 1?
 
 ## Future Improvements
 
 Potential future improvements include:
 
-Expanding airport service coverage
-Adding more real-time airport information
-Supporting additional Southeast Asian languages
-Integrating more personalised passenger assistance
-Adding richer visual responses for flight and transport information
+*    Expanding airport service coverage
+*    Adding more real-time airport information
+*    Supporting additional Southeast Asian languages
+*    Integrating more personalised passenger assistance
+*    Adding richer visual responses for flight and transport information
