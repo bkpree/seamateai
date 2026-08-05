@@ -7,7 +7,6 @@ interface Props {
   icon: React.ReactNode;
   title: string;
   description: string;
-  onClick?: () => void;
 }
 
 export default function FeatureCard({
@@ -15,28 +14,29 @@ export default function FeatureCard({
   icon,
   title,
   description,
-  onClick,
 }: Props) {
   return (
-    <Link href={href}>
-      <Card
-      onClick={onClick}
-      className="cursor-pointer transition hover:-translate-y-1 hover:shadow-lg"
-    >
-      <CardContent className="space-y-5 p-6">
-        <div className="text-blue-600">{icon}</div>
+    <Link href={href} className="block">
+      <Card className="h-full cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg">
+        <CardContent className="p-7">
+          <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+            {icon}
+          </div>
 
-        <h3 className="text-xl font-semibold">{title}</h3>
+          <h3 className="text-xl font-semibold text-gray-900">
+            {title}
+          </h3>
 
-        <p className="text-gray-600">{description}</p>
+          <p className="mt-2 text-sm leading-6 text-gray-600">
+            {description}
+          </p>
 
-        <div className="flex items-center gap-2 text-blue-600 font-medium">
-          Explore
-          <ArrowRight size={16} />
-        </div>
-      </CardContent>
-    </Card>
+          <div className="mt-6 flex items-center gap-2 text-sm font-medium text-blue-600">
+            Check your flight
+            <ArrowRight size={16} />
+          </div>
+        </CardContent>
+      </Card>
     </Link>
-    
   );
 }
