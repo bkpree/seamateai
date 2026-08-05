@@ -1,6 +1,8 @@
 # SeaMate AI
 
-SeaMate AI is a multilingual AI airport concierge designed to help passengers navigate Singapore Changi Airport. It provides flight information, airport dining recommendations, and transportation information through a conversational interface.
+SeaMate AI is a multilingual AI airport concierge designed to help passengers navigate Singapore Changi Airport. It provides flight information, airport dining recommendations, transportation information, and conversational assistance through a single chat interface.
+
+**Live Demo:** https://seamateai.vercel.app/
 
 ## Setup Instructions
 
@@ -64,6 +66,19 @@ SEA-LION is used to:
 
 The model is accessed through an OpenAI-compatible API using the OpenAI JavaScript SDK.
 
+Passengers can interact with SeaMate AI in:
+
+*    English
+*    Burmese
+*    Indonesian
+*    Filipino (Tagalog)
+*    Malay
+*    Tamil
+*    Thai
+*    Vietnamese
+
+The assistant can respond in the language used by the passenger, allowing users to interact naturally without manually selecting a language.
+
 ### Technology Stack
 
 * Next.js
@@ -74,3 +89,51 @@ The model is accessed through an OpenAI-compatible API using the OpenAI JavaScri
 * AviationStack API
 * Lucide React
 * OpenAI JavaScript SDK
+
+## Key Features
+### Multilingual AI Concierge
+
+Conversational airport assistance across eight Southeast Asian languages.
+
+### Flight Status
+
+Passengers can search for a flight number and view available flight information including:
+
+*    Flight status
+*    Departure and arrival airports
+*    Arrival time
+*    Terminal
+*    Gate
+*    Baggage information
+
+### Airport Dining
+
+Passengers can ask the assistant about available dining options at Changi Airport, including terminal and location information.
+
+### Transportation
+
+Passengers can ask about transportation options for travelling to and from Changi Airport.
+
+### Demo
+
+Example queries:
+
+*    What is the status of SQ8663?
+
+*    What food is available at Terminal 1?
+
+*    How do I get to the city from Changi Airport?
+
+*    Apa makanan yang tersedia di Terminal 1?
+
+*    อาหารอะไรมีให้บริการที่อาคารผู้โดยสาร 1?
+
+## Future Improvements
+
+Potential future improvements include:
+
+*    Expanding airport service coverage
+*    Adding more real-time airport information
+*    Supporting additional Southeast Asian languages
+*    Integrating more personalised passenger assistance
+*    Adding richer visual responses for flight and transport information
