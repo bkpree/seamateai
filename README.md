@@ -68,14 +68,14 @@ The model is accessed through an OpenAI-compatible API using the OpenAI JavaScri
 
 Passengers can interact with SeaMate AI in:
 
-English
-Burmese
-Indonesian
-Filipino (Tagalog)
-Malay
-Tamil
-Thai
-Vietnamese
+*    English
+*    Burmese
+*    Indonesian
+*    Filipino (Tagalog)
+*    Malay
+*    Tamil
+*    Thai
+*    Vietnamese
 
 The assistant can respond in the language used by the passenger, allowing users to interact naturally without manually selecting a language.
 
