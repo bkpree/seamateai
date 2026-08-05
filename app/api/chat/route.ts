@@ -154,6 +154,8 @@ RESPONSE FORMAT:
       },
     ];
 
+    console.log("STARTING FIRST SEA-LION CALL");
+
     const response = await client.chat.completions.create({
       model: "aisingapore/Qwen-SEA-LION-v4.5-27B-IT",
       messages,
@@ -176,8 +178,30 @@ RESPONSE FORMAT:
         if (toolCall.function.name === "get_flight_info") {
           result = await getFlightInfo(args.flightNumber);
 
+          console.log("FLIGHT RESULT", result);
+
           if (!result) {
             result = { error: "Flight not found." };
+          } else {
+            result = {
+              flightNumber: result.flightNumber,
+              airline: result.airline,
+              status: result.status,
+              departure: {
+                airport: result.departure.airport,
+                terminal: result.departure.terminal,
+                gate: result.departure.gate,
+                scheduled: result.departure.scheduled,
+              },
+              arrival: {
+                airport: result.arrival.airport,
+                terminal: result.arrival.terminal,
+                gate: result.arrival.gate,
+                baggage: result.arrival.baggage,
+                scheduled: result.arrival.scheduled,
+                estimated: result.arrival.estimated,
+              },
+            };
           }
         }
 
@@ -233,6 +257,7 @@ RESPONSE FORMAT:
         messages,
         stream: true,
       });
+      console.log("STARTING FINAL SEA-LION CALL");
 
       const encoder = new TextEncoder();
 
