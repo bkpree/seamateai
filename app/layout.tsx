@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SEAmate AI",
+  title: "SeaMate AI",
   description: "Your multilingual passenger support assistant for Singapore Changi Airport",
 };
 

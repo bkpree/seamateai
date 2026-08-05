@@ -15,7 +15,13 @@ export default function AirportAssistant() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Hi! How can I help you at Changi Airport?",
+      content: `Hi! I’m SeaMate AI 👋
+
+I can help with flights, dining, and transportation at Changi Airport.
+
+🌏 Try chatting with me in:
+English · Burmese · Indonesian · Tagalog ·
+Malay · Tamil · Thai · Vietnamese`,
     },
   ]);
 
