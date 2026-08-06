@@ -1,6 +1,6 @@
 # SeaMate AI
 
-SeaMate AI is a multilingual AI airport concierge designed to help passengers navigate Singapore Changi Airport. It provides flight information, airport dining recommendations, transportation information, and conversational assistance through a single chat interface.
+SeaMate AI is a prototype multilingual AI airport concierge designed around the passenger support needs of a regional airport, using Singapore Changi Airport as the example environment. It provides flight information, airport dining recommendations, transportation information, and conversational assistance through a single chat interface.
 
 **Live Demo:** https://seamateai.vercel.app/
 
@@ -40,15 +40,15 @@ Open `http://localhost:3000` in your browser.
 
 SeaMate AI uses a Next.js application with a conversational AI interface.
 
-When a user sends a message, the request is sent to a Next.js API route. SEA-LION determines whether external information is required and can invoke one of three tools:
+When a passenger sends a message, the request is sent to a Next.js API route. SEA-LION interprets the request and can invoke one of three tools depending on the passenger's intent:
 
 * `get_flight_info` — retrieves flight information such as status, terminal, gate, baggage belt, and arrival/departure times.
 * `get_airport_services` — retrieves relevant airport services such as dining options based on terminal and area.
 * `get_transport_info` — retrieves transportation information including MRT, buses, taxis, and ride-hailing.
 
-The retrieved tool results are then passed back to SEA-LION, which generates a concise, passenger-friendly response.
+The retrieved tool results are passed back to SEA-LION, which generates a concise, passenger-friendly response in the passenger's language.
 
-This tool-calling approach helps prevent the AI from inventing real-time airport information by separating information retrieval from response generation.
+This tool-calling approach helps reduce the risk of the AI inventing airport information by separating information retrieval from response generation. Flight information is retrieved through the AviationStack API, while airport service and transportation information are retrieved from the prototype's structured data.
 
 ## AI Model / Framework
 
@@ -77,7 +77,7 @@ Passengers can interact with SeaMate AI in:
 *    Thai
 *    Vietnamese
 
-The assistant can respond in the language used by the passenger, allowing users to interact naturally without manually selecting a language.
+The assistant detects the language used by the passenger and responds in the same language, reducing the need for passengers to navigate a separate language-selection interface.
 
 ### Technology Stack
 
@@ -97,22 +97,37 @@ Conversational airport assistance across eight Southeast Asian languages.
 
 ### Flight Status
 
-Passengers can search for a flight number and view available flight information including:
+Passengers can search for a flight number through the Flight Status interface and retrieve available flight information including:
 
-*    Flight status
-*    Departure and arrival airports
-*    Arrival time
-*    Terminal
-*    Gate
-*    Baggage information
+* Flight status
+* Departure and arrival airports
+* Arrival and departure times
+* Terminal
+* Gate
+* Baggage information
 
-### Airport Dining
+Flight information is retrieved through the AviationStack API.
 
-Passengers can ask the assistant about available dining options at Changi Airport, including terminal and location information.
+### AI Airport Concierge
 
-### Transportation
+Passengers can ask questions through the conversational interface and receive assistance with:
 
-Passengers can ask about transportation options for travelling to and from Changi Airport.
+* Airport dining
+* Transportation
+* Flight information
+
+## Design Considerations
+
+The prototype focuses on four common passenger support areas:
+
+1. Flight information
+2. Airport services and dining
+3. Transportation
+4. Multilingual conversational assistance
+
+These areas were selected because they represent routine enquiries that passengers may otherwise need to resolve through information counters or by searching across multiple information channels.
+
+The prototype demonstrates how AI can act as a conversational interface over structured airport information, while keeping factual information retrieval separate from AI-generated responses.
 
 ### Demo
 
@@ -132,8 +147,10 @@ Example queries:
 
 Potential future improvements include:
 
-*    Expanding airport service coverage
-*    Adding more real-time airport information
-*    Supporting additional Southeast Asian languages
-*    Integrating more personalised passenger assistance
-*    Adding richer visual responses for flight and transport information
+* Integrating additional official airport data sources for more comprehensive and real-time information.
+* Expanding airport service and facility coverage.
+* Adding indoor wayfinding and navigation capabilities.
+* Supporting additional languages and accessibility features.
+* Integrating more personalised passenger assistance.
+* Adding richer visual responses for flight, transport, and wayfinding information.
+* Adding monitoring and evaluation metrics to measure reductions in routine service enquiries and passenger satisfaction.
